@@ -11,7 +11,7 @@ jobs:
           with:
             string: ${{ github.REPOSITORY }}
         
-        - name: 'Format Azure Container Instance name'
+        - name: 'Format Azure Container Instance and file share name'
           id: aciname
           uses: mad9000/actions-find-and-replace-string@2
           with:
@@ -50,5 +50,5 @@ jobs:
           uses: Azure/cli@v1
           with:
             inlineScript: |
-                az container create -g ${{ secrets.RESOURCE_GROUP }} -n aci-${{ steps.aciname.outputs.value }} --image ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ steps.lcaserepo.outputs.lowercase }}:${{ github.run_number }} --cpu 1 --memory 1.5 --registry-login-server ${{ secrets.REGISTRY_LOGIN_SERVER }} --registry-username ${{ secrets.REGISTRY_USERNAME }} --registry-password ${{ secrets.REGISTRY_PASSWORD }} --ip-address Private --subnet '/subscriptions/e781198c-6f6d-4994-b688-6e8e34c63c79/resourceGroups/rg-reproducibility-demo-eastus-01/providers/Microsoft.Network/virtualNetworks/vnet-reproducibility-demo-eastus-01/subnets/aci' --command-line 'touch /mnt/y/aearep-2656/lots-of-research-data-2.txt' --azure-file-volume-account-key ${{ secrets.ST_ACCOUNT_KEY }} --azure-file-volume-account-name streprodemoeastus01 --azure-file-volume-mount-path '/mnt/y' --azure-file-volume-share-name 'study-repro' --restart-policy Never --location eastus
+                az container create -g ${{ secrets.RESOURCE_GROUP }} -n aci-${{ steps.aciname.outputs.value }} --image ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ steps.lcaserepo.outputs.lowercase }}:${{ github.run_number }} --cpu 1 --memory 1.5 --registry-login-server ${{ secrets.REGISTRY_LOGIN_SERVER }} --registry-username ${{ secrets.REGISTRY_USERNAME }} --registry-password ${{ secrets.REGISTRY_PASSWORD }} --ip-address Private --subnet '/subscriptions/e781198c-6f6d-4994-b688-6e8e34c63c79/resourceGroups/rg-reproducibility-demo-eastus-01/providers/Microsoft.Network/virtualNetworks/vnet-reproducibility-demo-eastus-01/subnets/aci' --command-line 'touch /mnt/y/${{ steps.aciname.outputs.value }}/lots-of-research-data-2.txt' --azure-file-volume-account-key ${{ secrets.ST_ACCOUNT_KEY }} --azure-file-volume-account-name streprodemoeastus01 --azure-file-volume-mount-path '/mnt/y' --azure-file-volume-share-name 'study-repro' --restart-policy Never --location eastus
                 
