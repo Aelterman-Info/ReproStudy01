@@ -14,7 +14,7 @@ jobs:
         - id: aciname
           name: 'Format Azure Container Instance name'
           run: |
-            ACI_NAME="${REPO/////-}"
+            ACI_NAME="${${{ steps.lcaserepo.outputs.lowercase }}/////-}"
             echo $ACI_NAME
         
         # checkout the repo
