@@ -13,19 +13,17 @@ jobs:
         
         - name: 'Format Azure Container Instance name'
           id: aciname
-          # You may pin to the exact commit or the version.
-          # uses: mad9000/actions-find-and-replace-string@bf97a127285f67d542d3f06145424c64803ae81a
           uses: mad9000/actions-find-and-replace-string@2
           with:
             # The text you want to run this action on
-            source: '${{ steps.lcaserepo.outputs.lowercase }}'
+            source: ${{ steps.lcaserepo.outputs.lowercase }}
             # The text you are looking for
             find: '/'
             # The text you want to replace with
             replace: '-'
     
         - run: |
-            echo ${{ steps.aciname.value }}
+            echo ${{ steps.aciname.outputs.value }}
             
         # checkout the repo
         - name: 'Checkout repo'
@@ -52,5 +50,5 @@ jobs:
           uses: Azure/cli@v1
           with:
             inlineScript: |
-                az container create -g ${{ secrets.RESOURCE_GROUP }} -n aci-${{ steps.aciname.value }} --image ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ steps.lcaserepo.outputs.lowercase }}:${{ github.run_number }} --cpu 1 --memory 1.5 --registry-login-server ${{ secrets.REGISTRY_LOGIN_SERVER }} --registry-username ${{ secrets.REGISTRY_USERNAME }} --registry-password ${{ secrets.REGISTRY_PASSWORD }} --ip-address Private --subnet '/subscriptions/e781198c-6f6d-4994-b688-6e8e34c63c79/resourceGroups/rg-reproducibility-demo-eastus-01/providers/Microsoft.Network/virtualNetworks/vnet-reproducibility-demo-eastus-01/subnets/aci' --command-line 'touch /mnt/y/aearep-2656/lots-of-research-data-2.txt' --azure-file-volume-account-key ${{ secrets.ST_ACCOUNT_KEY }} --azure-file-volume-account-name streprodemoeastus01 --azure-file-volume-mount-path '/mnt/y' --azure-file-volume-share-name 'study-repro' --restart-policy Never --location eastus
+                az container create -g ${{ secrets.RESOURCE_GROUP }} -n aci-${{ steps.aciname.outputs.value }} --image ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ steps.lcaserepo.outputs.lowercase }}:${{ github.run_number }} --cpu 1 --memory 1.5 --registry-login-server ${{ secrets.REGISTRY_LOGIN_SERVER }} --registry-username ${{ secrets.REGISTRY_USERNAME }} --registry-password ${{ secrets.REGISTRY_PASSWORD }} --ip-address Private --subnet '/subscriptions/e781198c-6f6d-4994-b688-6e8e34c63c79/resourceGroups/rg-reproducibility-demo-eastus-01/providers/Microsoft.Network/virtualNetworks/vnet-reproducibility-demo-eastus-01/subnets/aci' --command-line 'touch /mnt/y/aearep-2656/lots-of-research-data-2.txt' --azure-file-volume-account-key ${{ secrets.ST_ACCOUNT_KEY }} --azure-file-volume-account-name streprodemoeastus01 --azure-file-volume-mount-path '/mnt/y' --azure-file-volume-share-name 'study-repro' --restart-policy Never --location eastus
                 
