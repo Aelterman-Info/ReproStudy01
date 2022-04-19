@@ -5,11 +5,17 @@ jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
         steps:
-        - id: string
+        - id: lcaserepo
           name: 'Lowercase repo owner/name'
           uses: ASzc/change-string-case-action@v2
           with:
             string: ${{ github.REPOSITORY }}
+        
+        - id: aciname
+          name: 'Format Azure Container Instance name'
+          run: |
+            ACI_NAME"${REPO/////-}"
+            echo $ACI_NAME
         
         # checkout the repo
         - name: 'Checkout repo'
@@ -29,12 +35,12 @@ jobs:
         
         - name: 'Build and push container image to Azure Container Registry'
           run: |
-            docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ steps.string.outputs.lowercase }}:${{ github.run_number }}
-            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ steps.string.outputs.lowercase }}:${{ github.run_number }}
+            docker build . -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ steps.lcaserepo.outputs.lowercase }}:${{ github.run_number }}
+            docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ steps.lcaserepo.outputs.lowercase }}:${{ github.run_number }}
             
         - name: 'Run container in Azure Container Instance'
           uses: Azure/cli@v1
           with:
             inlineScript: |
-                az container create -g ${{ secrets.RESOURCE_GROUP }} -n aci-${{ steps.string.outputs.lowercase }} --image ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ steps.string.outputs.lowercase }}:${{ github.run_number }} --cpu 1 --memory 1.5 --registry-login-server ${{ secrets.REGISTRY_LOGIN_SERVER }} --registry-username ${{ secrets.REGISTRY_USERNAME }} --registry-password ${{ secrets.REGISTRY_PASSWORD }} --ip-address Private --subnet '/subscriptions/e781198c-6f6d-4994-b688-6e8e34c63c79/resourceGroups/rg-reproducibility-demo-eastus-01/providers/Microsoft.Network/virtualNetworks/vnet-reproducibility-demo-eastus-01/subnets/aci' --command-line 'touch /mnt/y/aearep-2656/lots-of-research-data-2.txt' --azure-file-volume-account-key ${{ secrets.ST_ACCOUNT_KEY }} --azure-file-volume-account-name streprodemoeastus01 --azure-file-volume-mount-path '/mnt/y' --azure-file-volume-share-name 'study-repro' --restart-policy Never --location eastus
+                az container create -g ${{ secrets.RESOURCE_GROUP }} -n aci-${{ steps.lcaserepo.outputs.lowercase }} --image ${{ secrets.REGISTRY_LOGIN_SERVER }}/${{ steps.lcaserepo.outputs.lowercase }}:${{ github.run_number }} --cpu 1 --memory 1.5 --registry-login-server ${{ secrets.REGISTRY_LOGIN_SERVER }} --registry-username ${{ secrets.REGISTRY_USERNAME }} --registry-password ${{ secrets.REGISTRY_PASSWORD }} --ip-address Private --subnet '/subscriptions/e781198c-6f6d-4994-b688-6e8e34c63c79/resourceGroups/rg-reproducibility-demo-eastus-01/providers/Microsoft.Network/virtualNetworks/vnet-reproducibility-demo-eastus-01/subnets/aci' --command-line 'touch /mnt/y/aearep-2656/lots-of-research-data-2.txt' --azure-file-volume-account-key ${{ secrets.ST_ACCOUNT_KEY }} --azure-file-volume-account-name streprodemoeastus01 --azure-file-volume-mount-path '/mnt/y' --azure-file-volume-share-name 'study-repro' --restart-policy Never --location eastus
                 
