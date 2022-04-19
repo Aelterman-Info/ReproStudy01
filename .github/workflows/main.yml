@@ -18,12 +18,15 @@ jobs:
           uses: mad9000/actions-find-and-replace-string@2
           with:
             # The text you want to run this action on
-            source: ${{ steps.lcaserepo.outputs.lowercase }}
+            source: '${{ steps.lcaserepo.outputs.lowercase }}'
             # The text you are looking for
             find: '/'
             # The text you want to replace with
             replace: '-'
     
+        - run: |
+            echo ${{ steps.aciname.value }}
+            
         # checkout the repo
         - name: 'Checkout repo'
           uses: actions/checkout@main
